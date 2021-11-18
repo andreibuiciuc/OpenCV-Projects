@@ -2,8 +2,6 @@
 
 In this notebook, one demonstrates basic image processing operations in OpenCV, from exploring different color spaces or thresholding techniques to contour and edge detection.
 
-https://user-images.githubusercontent.com/88616177/142469877-e554d2d4-1b71-40a3-b14d-e21e01691b12.png
-
 Snapshots with the thresholding and contour detection examples from the notebook.
 
 Exploring different types of thresholding algorithms.
