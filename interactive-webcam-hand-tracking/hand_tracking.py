@@ -2,6 +2,7 @@ import cv2.cv2 as cv2
 
 from hand_detector import HandDetectorWrapper
 from tensorflow import keras
+import numpy as np
 
 
 class VideoCaptureException(Exception):
@@ -26,7 +27,7 @@ class HandTrackingApp:
         self.__landmarks = []
 
         # Initialize the CNN hand classifier
-        # self.__load_classifier()
+        self.__load_classifier()
 
         # Initialize the camera
         self.__init_webcam()
@@ -64,7 +65,7 @@ class HandTrackingApp:
         self.__frame = frame
 
     def __load_classifier(self):
-        self.__hand_digit_classifier = keras.models.load_model('./model/model.h5')
+        self.__hand_digit_classifier = keras.models.load_model('./model/classifier/sign_digit_classifier.h5')
         print('CNN Hand Classifier loaded.')
 
     def __click(self, event, x, y, flags, param):
@@ -187,6 +188,32 @@ class HandTrackingApp:
                         if digit_class != 0:
                             self.__option = digit_class
                             self.__apply_filter()
+
+                elif self.__cnn_pressed is True:
+                    prediction_frame = self.__frame[self.__y1:self.__y2, self.__x1:self.__x2]
+
+                    image_for_feed = cv2.cvtColor(prediction_frame, cv2.COLOR_BGR2RGB)
+                    image_for_feed = cv2.flip(image_for_feed, 1)
+
+                    scale_percent = 25
+                    width = int(image_for_feed.shape[1] * scale_percent / 100)
+                    height = int(image_for_feed.shape[0] * scale_percent / 100)
+                    dim = (width, height)
+
+                    resized = cv2.resize(prediction_frame, dim, interpolation=cv2.INTER_AREA)
+
+                    resized = np.array([resized])
+                    resized = resized.astype('float32') / 255.
+
+                    prediction = self.__hand_digit_classifier.predict(resized)
+                    prediction_class = np.argmax(prediction) + 1
+                    print(prediction_class)
+                    if prediction_class not in [1, 2, 3]:
+                        self.__option = 0
+                    else:
+                        self.__option = prediction_class
+
+                    self.__apply_filter()
 
             cv2.imshow('Hand Tracking Capture', self.__frame)
 

@@ -30,8 +30,6 @@ class HandDetectorWrapper:
         # Detection results
         self.__results_detection = None
 
-        # Landmarks
-
     def __set_results_detection(self, results):
         self.__results_detection = results
 
